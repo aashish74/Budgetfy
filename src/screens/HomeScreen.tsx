@@ -8,6 +8,7 @@ import { RootStackParamList } from '../types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = NativeStackNavigationProp<RootStackParamList>;
 
@@ -16,6 +17,8 @@ export default function HomeScreen() {
   const trips = useSelector((state: RootState) => state.trips.trips);
   
   return (
+    <SafeAreaView>
+      <StatusBar backgroundColor={'#fff'}/>
     <View style = {{backgroundColor: '#fff'}}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
         <Text style={{ fontSize: 30, fontWeight: 'bold' }}>Budgetify</Text>
@@ -74,6 +77,7 @@ export default function HomeScreen() {
         </View>
       </View>
     </View>
+    </SafeAreaView>
   )
 }
 

@@ -6,6 +6,7 @@ interface Trip {
 }
 
 interface TripState {
+  length: number;
   trips: Trip[];
 }
 

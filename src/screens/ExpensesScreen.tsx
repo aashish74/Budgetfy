@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     backgroundColor: '#fff',
+    marginTop:50
   },
   heading: {
     fontSize: 24,

@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Image, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import BackButton from '../components/backButton'
 import IMAGES from '../assets/images'
@@ -44,7 +44,8 @@ export default function AddExpensesScreen() {
   };
 
   return (
-    <View style={{ backgroundColor: '#fff', flex: 1, }}>
+    <View style={{ backgroundColor: '#fff', flex: 1, marginTop:50}}>
+      <StatusBar backgroundColor={'#fff'}/>
       <View style={{ position: 'absolute', zIndex: 1, top: 8, left: 6 }}>
         <BackButton />
       </View>

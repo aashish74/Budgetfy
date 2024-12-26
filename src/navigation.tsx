@@ -57,7 +57,7 @@ function TabNavigator() {
 const Navigation = () => {
   return(
     <NavigationContainer>
-      <StatusBar barStyle="dark-content" backgroundColor="Transparent" />
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <Stack.Navigator initialRouteName='Profile'>
         {/* <Stack.Screen name='Welcome' component={WelcomeScreen} options={{headerShown: false}}/> */}
         {/* <Stack.Screen name='Login' component={LoginScreen} options={{headerShown: false}}/> */}
