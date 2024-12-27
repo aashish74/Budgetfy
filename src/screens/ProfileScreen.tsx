@@ -1,14 +1,37 @@
 import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import IMAGES from '../assets/images'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../store/store'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { setCurrency } from '../store/currencySlice'
 
 export default function ProfileScreen() {
-  const trips = useSelector((state: RootState) => state.trips)
-  const expenses = useSelector((state: RootState) => state.expenses)
+  const dispatch = useDispatch();
+  const { currency } = useSelector((state: RootState) => state.currency);
+  const trips = useSelector((state: RootState) => state.trips.trips);
+  const expenses = useSelector((state: RootState) => state.expenses);
 
+  const currencies = [
+    { symbol: '₹', id: 'INR', rate:1},
+    { symbol: '$', id: 'USD', rate:0.011673},
+    { symbol: '€', id: 'EUR', rate:0.0113},
+  ];
+
+  const handleCurrencyChange = () => {
+    // Cycle through currencies
+    const currentIndex = currencies.findIndex(c => c.id === currency.id);
+    const nextIndex = (currentIndex + 1) % currencies.length;
+    dispatch(setCurrency(currencies[nextIndex]));
+  };
+
+  const totalAmount = useMemo(() => {
+    const total = Object.values(expenses).reduce((sum, tripExpenses) => {
+      return sum + tripExpenses.reduce((tripSum, expense) => tripSum + expense.amount, 0);
+    }, 0);
+    return (total * currency.rate).toFixed(2);
+  }, [expenses, currency.rate]);
+  
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
@@ -20,10 +43,12 @@ export default function ProfileScreen() {
 
       {/* Profile Card */}
       <View style={styles.profileCard}>
+        <TouchableOpacity>
         <Image 
           source={IMAGES.PROFILE}
           style={styles.profileImage}
         />
+        </TouchableOpacity>
         <Text style={styles.userName}>Aashish Bhardwaj</Text>
         <Text style={styles.userEmail}>abc@gmail.com</Text>
       </View>
@@ -31,7 +56,7 @@ export default function ProfileScreen() {
       {/* Stats Section */}
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
-          <Text style={styles.statAmount}>₹1234</Text>
+          <Text style={styles.statAmount}>{currency.symbol}{totalAmount}</Text>
           <Text style={styles.statLabel}>Total Spent</Text>
         </View>
         <View style={styles.statCard}>
@@ -43,9 +68,14 @@ export default function ProfileScreen() {
       {/* Settings Section */}
       <View style={styles.settingsContainer}>
         <Text style={styles.sectionTitle}>Settings</Text>
-        <TouchableOpacity style={styles.settingItem}>
+        <TouchableOpacity 
+          style={styles.settingItem}
+          onPress={handleCurrencyChange}
+        >
           <Text style={styles.settingText}>Currency</Text>
-          <Text style={styles.settingValue}>₹ INR</Text>
+          <View style={styles.currencyValue}>
+            <Text style={styles.settingValue}>{currency.symbol} {currency.id}</Text>
+          </View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.settingItem}>
           <Text style={styles.settingText}>Theme</Text>
@@ -158,6 +188,7 @@ const styles = StyleSheet.create({
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
@@ -173,7 +204,7 @@ const styles = StyleSheet.create({
   logoutButton: {
     margin: 15,
     marginTop: 'auto',
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f8ff',
     padding: 15,
     borderRadius: 20,
     borderWidth: 0.2,
@@ -184,5 +215,13 @@ const styles = StyleSheet.create({
     color: 'grey',
     fontSize: 16,
     fontWeight: '600',
+  },
+  currencyValue: {
+    alignItems: 'flex-end',
+  },
+  changeText: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
   },
 })

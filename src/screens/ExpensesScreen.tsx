@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, StatusBar } from 'react-native';
 import IMAGES from '../assets/images';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,20 +16,21 @@ const ExpensesScreen = () => {
 
   const handleNext = () => {
     if(place && country){
-      dispatch(addTrip({ place, country }));
-      // Navigate to Home tab
+      dispatch(addTrip({ 
+        place, 
+        country
+      }));
       navigation.dispatch(
         CommonActions.navigate({
           name: 'Home'
         })
       );
-    }else{
-
     }
   };
   
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={'#fff'}/>
       <View style={{ marginTop: 15 }}>
         <Text style={styles.heading}>Add Trip</Text>
         <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 10, marginTop: 7 }}>

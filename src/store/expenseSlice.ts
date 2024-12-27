@@ -1,33 +1,29 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface Expense {
+interface Expense {
   id: string;
   title: string;
   amount: number;
   category: string;
-  tripId?: string;
+  tripId: string;
 }
 
 interface ExpenseState {
-  expenses: Record<string, Expense[]>;  // Key is tripId, value is array of expenses
+  [tripId: string]: Expense[];
 }
 
-const initialState: ExpenseState = {
-  expenses: {},
-};
+const initialState: ExpenseState = {};
 
-export const expenseSlice = createSlice({
+const expenseSlice = createSlice({
   name: 'expenses',
-  initialState: {
-    expenses: {} as { [key: string]: Expense[] }
-  },
+  initialState,
   reducers: {
-    addExpense: (state, action: PayloadAction<{ tripId: string; expense: Expense }>) => {
-      const { tripId, expense } = action.payload;
-      if (!state.expenses[tripId]) {
-        state.expenses[tripId] = [];
+    addExpense: (state, action: PayloadAction<Expense>) => {
+      const { tripId } = action.payload;
+      if (!state[tripId]) {
+        state[tripId] = [];
       }
-      state.expenses[tripId].push(expense);
+      state[tripId].push(action.payload);
     }
   }
 });

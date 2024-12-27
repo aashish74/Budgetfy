@@ -24,15 +24,13 @@ export default function AddExpensesScreen() {
   const handleDone = () => {
      if (!title || !amount || !category) return;
 
-    const expenseData = {
+    dispatch(addExpense({
       id: Date.now().toString(),
       title,
       amount: parseFloat(amount),
       category,
-      date: new Date().toISOString()
-    };
-
-    dispatch(addExpense({ tripId, expense: expenseData }));
+      tripId
+    }));
     
     // Clear all fields
     setTitle('');
@@ -44,9 +42,9 @@ export default function AddExpensesScreen() {
   };
 
   return (
-    <View style={{ backgroundColor: '#fff', flex: 1, marginTop:50}}>
+    <View style={{ backgroundColor: '#fff', flex: 1, paddingTop:45}}>
       <StatusBar backgroundColor={'#fff'}/>
-      <View style={{ position: 'absolute', zIndex: 1, top: 8, left: 6 }}>
+      <View style={{ position: 'absolute', zIndex: 1, top: 55, left: 6 }}>
         <BackButton />
       </View>
       <View style={{ paddingTop: 8, }}>

@@ -17,14 +17,11 @@ export default function HomeScreen() {
   const trips = useSelector((state: RootState) => state.trips.trips);
   
   return (
-    <SafeAreaView>
+    <SafeAreaView style = {{backgroundColor:'#fff', flex:1}}>
       <StatusBar backgroundColor={'#fff'}/>
-    <View style = {{backgroundColor: '#fff'}}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
-        <Text style={{ fontSize: 30, fontWeight: 'bold' }}>Budgetify</Text>
-        <TouchableOpacity style={{ padding: 10, paddingHorizontal: 15, backgroundColor: 'white', borderWidth: 0.2, borderColor: 'grey', borderRadius: 20 }}>
-          <Text style={{color:'grey', fontWeight:'600'}}>Log out</Text>
-        </TouchableOpacity>
+    <View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, marginTop:10}}>
+        <Text style={{ fontSize: 28, fontWeight: 'bold' }}>Welcome Aashish</Text>
       </View>
       <View style={{
         backgroundColor: '#add8e6', alignItems: 'center', borderRadius: 20, margin: 20, shadowColor: 'black',
@@ -55,7 +52,8 @@ export default function HomeScreen() {
                 <TouchableOpacity
                 onPress={() => navigation.navigate('TripExpenses', {
                   place: item.place,
-                  country: item.country
+                  country: item.country, 
+                  id: item.id
                 })}
                 style={{backgroundColor: 'white', marginBottom: 10, padding: 25, borderRadius: 20, shadowColor: 'black',
                   shadowOpacity: 0.26,

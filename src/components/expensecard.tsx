@@ -1,7 +1,22 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { useSelector } from 'react-redux'
+import { RootState } from '../store/store'
 
-export default function ExpenseCard({ expense }) {
+interface ExpenseProps {
+  expense: {
+    title: string;
+    category: string;
+    amount: number;
+  }
+}
+
+export default function ExpenseCard({ expense }: ExpenseProps) {
+  const { currency } = useSelector((state: RootState) => state.currency);
+  const convertAmount = (amount: number): string => {
+    const convertedAmount = amount * currency.rate;
+    return convertedAmount.toFixed(2); // Round to two decimal places
+  } 
   return (
     <View style={styles.container}>
       <View style={styles.row}>
@@ -9,7 +24,7 @@ export default function ExpenseCard({ expense }) {
           <Text style={styles.title}>{expense.title}</Text>
           <Text style={styles.category}>{expense.category}</Text>
         </View>
-        <Text style={styles.amount}>₹{expense.amount}</Text>
+        <Text style={styles.amount}>{currency.symbol}{convertAmount(expense.amount)}</Text>
       </View>
     </View>
   )

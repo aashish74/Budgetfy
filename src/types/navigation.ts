@@ -10,6 +10,7 @@ export type RootStackParamList = {
   TripExpenses: {
     place: string;
     country: string;
+    id: string;
   }; 
   AddExpenses: {
     tripId: string;
