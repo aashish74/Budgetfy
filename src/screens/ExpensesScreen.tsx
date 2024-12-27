@@ -25,6 +25,8 @@ const ExpensesScreen = () => {
           name: 'Home'
         })
       );
+      setCountry('');
+      setPlace('');
     }
   };
   
