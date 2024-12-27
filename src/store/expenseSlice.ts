@@ -24,9 +24,15 @@ const expenseSlice = createSlice({
         state[tripId] = [];
       }
       state[tripId].push(action.payload);
+    },
+    deleteExpense: (state, action: PayloadAction<{tripId: string, expenseId:string}>) =>{
+      const {tripId, expenseId} = action.payload;
+      if(state[tripId]){
+        state[tripId] = state[tripId].filter(expense => expense.id != expenseId);
+      }
     }
   }
 });
 
-export const { addExpense } = expenseSlice.actions;
+export const { addExpense, deleteExpense} = expenseSlice.actions;
 export default expenseSlice.reducer;

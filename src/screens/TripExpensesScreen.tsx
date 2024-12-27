@@ -118,8 +118,8 @@ const styles = StyleSheet.create({
   },
   totalCard: {
     backgroundColor: '#add8e6',
-    margin: 20,
-    padding: 20,
+    margin: 10,
+    padding: 8,
     borderRadius: 20,
     alignItems: 'center',
     shadowColor: 'black',
