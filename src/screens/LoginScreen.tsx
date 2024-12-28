@@ -1,10 +1,11 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import BackButton from '../components/backButton'
 import IMAGES from '../assets/images'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../types/navigation'
 import { CommonActions, useNavigation } from '@react-navigation/native'
+import { FIREBASE_AUTH } from '../config/firebase'
 
 type Prop = NativeStackNavigationProp<RootStackParamList>
 
@@ -12,6 +13,7 @@ export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation<Prop>();
+    const auth = FIREBASE_AUTH;
 
     const handleSignIn = () => {
         if(email && password){
@@ -21,7 +23,7 @@ export default function LoginScreen() {
                 })
             )
         }else{
-
+            
         }
     }
     return (

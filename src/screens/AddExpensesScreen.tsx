@@ -42,7 +42,7 @@ export default function AddExpensesScreen() {
   };
 
   return (
-    <View style={{ backgroundColor: '#fff', flex: 1, paddingTop:45}}>
+    <View style={{ backgroundColor: '#fff', flex: 1, paddingTop:43}}>
       <StatusBar backgroundColor={'#fff'}/>
       <View style={{ position: 'absolute', zIndex: 1, top: 55, left: 6 }}>
         <BackButton />

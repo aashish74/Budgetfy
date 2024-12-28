@@ -12,6 +12,10 @@ import WelcomeScreen from './screens/WelcomeScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import { onAuthStateChanged } from 'firebase/auth';
+import { FIREBASE_AUTH } from './config/firebase';
+import { useDispatch, useSelector} from 'react-redux';
+import { setUser } from './store/userSlice';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -55,13 +59,19 @@ function TabNavigator() {
 }
 
 const Navigation = () => {
+  const {user} = useSelector(state => state.user)
+  const dispach = useDispatch()
+  onAuthStateChanged(FIREBASE_AUTH, u => {
+    console.log('got user : ', u);
+    dispach(setUser(u));
+  })
   return(
     <NavigationContainer>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      <Stack.Navigator initialRouteName='Profile'>
-        {/* <Stack.Screen name='Welcome' component={WelcomeScreen} options={{headerShown: false}}/> */}
-        {/* <Stack.Screen name='Login' component={LoginScreen} options={{headerShown: false}}/> */}
-        {/* <Stack.Screen name='SignUp' component={SignUpScreen} options={{headerShown: false}}/> */}
+      <Stack.Navigator initialRouteName='Welcome'>
+        <Stack.Screen name='Welcome' component={WelcomeScreen} options={{headerShown: false}}/>
+        <Stack.Screen name='Login' component={LoginScreen} options={{headerShown: false}}/>
+        <Stack.Screen name='SignUp' component={SignUpScreen} options={{headerShown: false}}/>
         <Stack.Screen name="MainTabs" component={TabNavigator} options={{ headerShown: false }}/>
         <Stack.Screen name="TripExpenses" component={TripExpensesScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="AddExpenses" component={AddExpensesScreen} options={{ headerShown: false }}/>
