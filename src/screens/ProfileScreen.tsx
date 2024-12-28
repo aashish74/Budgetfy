@@ -171,7 +171,7 @@ export default function ProfileScreen() {
             style={styles.profileImage}
           />
         </TouchableOpacity>
-        <Text style={styles.userName}>Aashish Bhardwaj</Text>
+        <Text style={styles.userName}>Aashish</Text>
         <Text style={styles.userEmail}>abc@gmail.com</Text>
       </View>
 

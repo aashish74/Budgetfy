@@ -11,7 +11,7 @@ type Props = NativeStackNavigationProp<RootStackParamList>;
 export default function WelcomeScreen() {
     const navigation = useNavigation<Props>()
     return (
-        <View style = {{paddingTop:70, backgroundColor:'#fff'}}>
+        <View style = {{paddingTop:70, backgroundColor:'#fff', flex:1}}>
             <View style={{ alignItems: 'center', }}>
                 <Image
                     style={{ height: 500, width: 400 }}
