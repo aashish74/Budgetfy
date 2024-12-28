@@ -11,7 +11,7 @@ import { getFirestore, collection } from "firebase/firestore";
 
 const firebaseConfig = {
 
-  apiKey: "AIzaSyCvBNiWXLtt11SNsfbBO3Ku7-so4Lfg2ig",
+  apiKey: API_KEY,
 
   authDomain: "budgetfy-8924c.firebaseapp.com",
 
