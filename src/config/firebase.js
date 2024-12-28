@@ -11,7 +11,7 @@ import { getFirestore, collection } from "firebase/firestore";
 
 const firebaseConfig = {
 
-  apiKey: "REMOVED",
+  apiKey: API_KEY,
 
   authDomain: "budgetfy-8924c.firebaseapp.com",
 
