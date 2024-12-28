@@ -1,10 +1,11 @@
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, Modal, PermissionsAndroid, Platform, Linking, Alert } from 'react-native'
 import React, { useMemo, useState } from 'react'
 import IMAGES from '../assets/images'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../store/store'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { setCurrency } from '../store/currencySlice'
+import { launchCamera, launchImageLibrary, ImagePickerResponse, PhotoQuality, MediaType } from 'react-native-image-picker'
 
 export default function ProfileScreen() {
   const dispatch = useDispatch();
@@ -17,6 +18,9 @@ export default function ProfileScreen() {
     { symbol: '$', id: 'USD', rate:0.011673},
     { symbol: '€', id: 'EUR', rate:0.0113},
   ];
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [profileImage, setProfileImage] = useState(IMAGES.PROFILE);
 
   const handleCurrencyChange = () => {
     // Cycle through currencies
@@ -32,6 +36,124 @@ export default function ProfileScreen() {
     return (total * currency.rate).toFixed(2);
   }, [expenses, currency.rate]);
   
+  const requestCameraPermission = async () => {
+    try {
+      // Check if permissions are already granted
+      const cameraPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA);
+      const storagePermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+
+      if (cameraPermission && storagePermission) {
+        return true;
+      }
+
+      // Request permissions if not granted
+      const granted = await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      ]);
+
+      return (
+        granted['android.permission.CAMERA'] === PermissionsAndroid.RESULTS.GRANTED &&
+        granted['android.permission.WRITE_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED
+      );
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
+
+  const handleCameraLaunch = async () => {
+    try {
+      if (Platform.OS === 'android') {
+        // First check if permission is already granted
+        const cameraGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA);
+        
+        if (!cameraGranted) {
+          const permissionStatus = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.CAMERA,
+            {
+              title: "Camera Permission",
+              message: "App needs access to your camera",
+              buttonPositive: "OK",
+              buttonNegative: "Cancel",
+            }
+          );
+
+          console.log('Camera permission status:', permissionStatus);
+
+          if (permissionStatus === PermissionsAndroid.RESULTS.DENIED) {
+            Alert.alert('Permission Denied', 'Camera permission is required to take photos');
+            return;
+          }
+
+          if (permissionStatus === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+            Alert.alert(
+              "Permission Required",
+              "Please enable camera permission in settings",
+              [
+                { text: "Cancel", style: "cancel" },
+                { 
+                  text: "Open Settings", 
+                  onPress: () => {
+                    Linking.openSettings();
+                    setModalVisible(false);
+                  }
+                }
+              ]
+            );
+            return;
+          }
+        }
+
+        // If we get here, we have permission
+        const options = {
+          mediaType: 'photo' as MediaType,
+          quality: 1 as PhotoQuality,
+          saveToPhotos: true,
+        };
+
+        launchCamera(options, (response: ImagePickerResponse) => {
+          console.log('Camera response:', response);
+          if (response.assets?.[0]?.uri) {
+            setProfileImage({ uri: response.assets[0].uri });
+            setModalVisible(false);
+          }
+        });
+      }
+    } catch (error) {
+      console.log('Error:', error);
+    }
+  };
+
+  const handleGalleryLaunch = () => {
+    const options = {
+      mediaType: 'photo' as MediaType,
+      includeBase64: false,
+      maxHeight: 2000,
+      maxWidth: 2000,
+      selectionLimit: 1,
+    };
+
+    launchImageLibrary(options, (response: ImagePickerResponse) => {
+      console.log('Gallery response:', response);
+      
+      if (response.didCancel) {
+        console.log('User cancelled gallery picker');
+        return;
+      }
+      
+      if (response.errorCode) {
+        console.log('Gallery Error:', response.errorMessage);
+        return;
+      }
+      
+      if (response.assets && response.assets[0]?.uri) {
+        setProfileImage({ uri: response.assets[0].uri });
+        setModalVisible(false);
+      }
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
@@ -43,15 +165,46 @@ export default function ProfileScreen() {
 
       {/* Profile Card */}
       <View style={styles.profileCard}>
-        <TouchableOpacity>
-        <Image 
-          source={IMAGES.PROFILE}
-          style={styles.profileImage}
-        />
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Image 
+            source={profileImage}
+            style={styles.profileImage}
+          />
         </TouchableOpacity>
         <Text style={styles.userName}>Aashish Bhardwaj</Text>
         <Text style={styles.userEmail}>abc@gmail.com</Text>
       </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Choose Option</Text>
+            <TouchableOpacity 
+              style={styles.modalButton} 
+              onPress={handleCameraLaunch}
+            >
+              <Text style={styles.modalButtonText}>Take Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.modalButton}
+              onPress={handleGalleryLaunch}
+            >
+              <Text style={styles.modalButtonText}>Choose from Gallery</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={[styles.modalButtonText, styles.cancelText]}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Stats Section */}
       <View style={styles.statsContainer}>
@@ -223,5 +376,40 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
     marginTop: 2,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)'
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButton: {
+    backgroundColor: '#add8e6',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  modalButtonText: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  cancelButton: {
+    backgroundColor: '#f0f0f0',
+  },
+  cancelText: {
+    color: 'red',
   },
 })
