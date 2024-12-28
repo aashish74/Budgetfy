@@ -1,11 +1,25 @@
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import BackButton from '../components/backButton'
-import IMAGES from '../assets/images'
+import IMAGES from '../assets/images';
+import { useNavigation } from '@react-navigation/native';
+import { FIREBASE_AUTH } from '../config/firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function SignUpScreen() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigation()
+  
+  const handleSignUp = async() =>{
+    if(email && password){
+      navigate.goBack();
+      // await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+    }
+    else{
+    }
+  }
   return (
     <View style={{ paddingTop: 25, backgroundColor: '#fff', height: '100%' }}>
       <View style={{ position: 'absolute', zIndex: 1, paddingTop: 24, paddingLeft: 8 }}>
@@ -23,8 +37,8 @@ export default function SignUpScreen() {
         <TextInput
           placeholder='Name'
           style={{ padding: 15, borderWidth: 0.2, borderRadius: 20, marginBottom: 25 }}
-          value={email}
-          onChangeText={setEmail}
+          value={name}
+          onChangeText={setName}
         />
         <TextInput
           placeholder='Email'
@@ -41,6 +55,7 @@ export default function SignUpScreen() {
       </View>
       <View>
         <TouchableOpacity
+        onPress={handleSignUp}
           style={{
             marginTop:10 ,backgroundColor: '#90ee90', padding: 12, marginHorizontal: 25, borderRadius: 25, shadowColor: 'black',
             shadowOpacity: 0.26,
@@ -56,4 +71,4 @@ export default function SignUpScreen() {
   )
 }
 
-const styles = StyleSheet.create({})
+
