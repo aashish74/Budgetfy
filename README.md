@@ -106,3 +106,7 @@ Budgetfy/
 
 ### Demo of App
 
+
+https://github.com/user-attachments/assets/b5e18e9c-4564-4e8a-9fc6-bc16a2535aa9
+
+
