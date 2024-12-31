@@ -59,7 +59,7 @@ function TabNavigator() {
 }
 
 const Navigation = () => {
-  const {user} = useSelector(state => state.user)
+  const {user} = useSelector((state: any) => state.user)
   const dispach = useDispatch()
   onAuthStateChanged(FIREBASE_AUTH, u => {
     console.log('got user : ', u);

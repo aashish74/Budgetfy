@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../types/navigation'
 import { CommonActions, useNavigation } from '@react-navigation/native'
 import { FIREBASE_AUTH } from '../config/firebase'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 
 type Prop = NativeStackNavigationProp<RootStackParamList>
 
@@ -15,13 +16,14 @@ export default function LoginScreen() {
     const navigation = useNavigation<Prop>();
     const auth = FIREBASE_AUTH;
 
-    const handleSignIn = () => {
+    const handleSignIn = async() => {
         if(email && password){
-            navigation.dispatch(
-                CommonActions.navigate({
-                    name: 'MainTabs'
-                })
-            )
+            // navigation.dispatch(
+            //     CommonActions.navigate({
+            //         name: 'MainTabs'
+            //     })
+            // )
+            await signInWithEmailAndPassword(auth, email, password);
         }else{
             
         }

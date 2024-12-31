@@ -6,6 +6,8 @@ import { RootState } from '../store/store'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { setCurrency } from '../store/currencySlice'
 import { launchCamera, launchImageLibrary, ImagePickerResponse, PhotoQuality, MediaType } from 'react-native-image-picker'
+import { signOut } from 'firebase/auth'
+import { FIREBASE_AUTH } from '../config/firebase'
 
 export default function ProfileScreen() {
   const dispatch = useDispatch();
