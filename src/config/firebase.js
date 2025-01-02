@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth} from "firebase/auth";
+import {API_KEY, API_ID, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID} from "@env";
 // TODO: Add SDKs for Firebase products that you want to use
 
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -12,13 +13,13 @@ const firebaseConfig = {
 
   apiKey: API_KEY,
 
-  authDomain: "budgetfy-8924c.firebaseapp.com",
+  authDomain: AUTH_DOMAIN,
 
-  projectId: "budgetfy-8924c",
+  projectId: PROJECT_ID,
 
-  storageBucket: "budgetfy-8924c.firebasestorage.app",
+  storageBucket: STORAGE_BUCKET,
 
-  messagingSenderId: "75965777212",
+  messagingSenderId: MESSAGING_SENDER_ID,
 
   appId: API_ID
 
