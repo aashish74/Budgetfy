@@ -1,49 +1,64 @@
-import { Image, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
-import BackButton from '../components/backButton'
-import IMAGES from '../assets/images'
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { categories } from '../components/categories';
-import { useDispatch } from 'react-redux';
-import { addExpense } from '../store/expenseSlice';
-import { RootStackParamList } from '../types/navigation';
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store/store';
+import { createExpense } from '../store/expenseSlice';
+import BackButton from '../components/backButton';
+import IMAGES from '../assets/images';
+import { categories } from '../components/categories';
 
 type Props = NativeStackNavigationProp<RootStackParamList>;
+type RouteParams = {
+  tripId: string;
+  place: string;
+  country: string;
+};
 
 export default function AddExpensesScreen() {
+  const route = useRoute<RouteProp<{ params: RouteParams }, 'params'>>();
+  const navigation = useNavigation<Props>();
+  const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.user);
+  
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
+  const [description, setDescription] = useState('');
 
-  const navigation = useNavigation<Props>();
-  const dispatch = useDispatch();
-  const route = useRoute();
-  const { tripId } = route.params as { tripId: string };
+  const handleAddExpense = async () => {
+    try {
+      if (!user?.uid) {
+        Alert.alert('Error', 'User not found');
+        return;
+      }
+      
+      if (!title || !amount || !category) {
+        Alert.alert('Error', 'Please fill in all required fields');
+        return;
+      }
 
-  const handleDone = () => {
-     if (!title || !amount || !category) return;
+      const expenseData = {
+        tripId: route.params.tripId,
+        title,
+        amount: parseFloat(amount),
+        category,
+        description,
+        date: new Date(),
+        userId: user.uid
+      };
 
-    dispatch(addExpense({
-      id: Date.now().toString(),
-      title,
-      amount: parseFloat(amount),
-      category,
-      tripId
-    }));
-    
-    // Clear all fields
-    setTitle('');
-    setAmount('');
-    setCategory('');
-    
-    // Navigate back to trip expenses screen
-    navigation.goBack();
+      await dispatch(createExpense(expenseData)).unwrap();
+      navigation.goBack();
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to add expense');
+    }
   };
 
   return (
     <View style={{ backgroundColor: '#fff', flex: 1, paddingTop:43}}>
-      <StatusBar backgroundColor={'#fff'}/>
       <View style={{ position: 'absolute', zIndex: 1, top: 55, left: 6 }}>
         <BackButton />
       </View>
@@ -81,7 +96,7 @@ export default function AddExpensesScreen() {
           }
         }>
           {
-            categories.map(cat => {
+            categories.map((cat: any) => {
               return (
                 <TouchableOpacity
                   key={cat.value}
@@ -114,7 +129,7 @@ export default function AddExpensesScreen() {
       <View>
         <TouchableOpacity
           style={{ marginBottom: 30, backgroundColor: '#32cd32', padding: 12, marginHorizontal: 17, borderRadius: 16 }}
-          onPress={handleDone}
+          onPress={handleAddExpense}
         >
           <Text style={{ textAlign: 'center', color: 'white', fontSize: 22, fontWeight: "bold" }}>Done</Text>
         </TouchableOpacity>

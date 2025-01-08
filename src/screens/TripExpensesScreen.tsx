@@ -1,15 +1,17 @@
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import randomImage from '../assets/randomImage';
 import EmptyList from '../components/emptyList';
 import BackButton from '../components/backButton';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import ExpenseCard from '../components/expensecard';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { selectExpensesByTripId } from '../store/selectors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RootState } from '../store/store';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { fetchTripExpenses } from '../store/expenseSlice';
+import { AppDispatch } from '../store/store';
 
 type RootStackParamList = {
   AddExpenses: { tripId: string };
@@ -17,10 +19,18 @@ type RootStackParamList = {
 
 export default function TripExpensesScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const dispatch = useDispatch<AppDispatch>();
   const route = useRoute();
   const { place, country, id: tripId } = route.params as { place: string; country: string; id: string };
   const expenses = useSelector(selectExpensesByTripId(tripId));
   const { currency } = useSelector((state: RootState) => state.currency);
+
+  // Add this useEffect to fetch expenses when screen loads
+  useEffect(() => {
+    if (tripId) {
+      dispatch(fetchTripExpenses(tripId));
+    }
+  }, [dispatch, tripId]);
 
   // Calculate total expenses
   const totalExpenses = useMemo(() => {
