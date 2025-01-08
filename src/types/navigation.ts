@@ -4,11 +4,14 @@ export type RootStackParamList = {
   MainTabs: undefined;
   Home: undefined;
   Profile: undefined;
-  // Add other screen types as needed
+  TripExpenses: {
+    place: string;
+    country: string;
+    id: string;
+  };
 };
 
 export type TabParamList = {
   Home: undefined;
   Profile: undefined;
-  // Add other tab screen types as needed
 };
