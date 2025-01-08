@@ -1,5 +1,5 @@
 module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
+  presets: ['@react-native/babel-preset'],
   plugins: [
     ['module:react-native-dotenv', {
       moduleName: '@env',
@@ -9,9 +9,6 @@ module.exports = {
       safe: false,
       allowUndefined: true
     }],
-    ['@babel/plugin-transform-private-methods', { loose: true }],
-    ['@babel/plugin-transform-class-properties', { loose: true }],
-    ['@babel/plugin-transform-private-property-in-object', { loose: true }],
     'react-native-reanimated/plugin'
   ]
 };
