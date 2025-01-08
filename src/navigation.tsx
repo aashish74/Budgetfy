@@ -14,10 +14,11 @@ import SignUpScreen from './screens/SignUpScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import { onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './config/firebase';
-import { useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { clearUser, setUser } from './store/userSlice';
-import { RootState } from './store/store';
+import { AppDispatch, RootState } from './store/store';
 import { serializeUser } from './store/userSerializer';
+import { fetchUserTrips } from './store/tripSlice';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -61,7 +62,7 @@ function TabNavigator() {
 }
 
 const Navigation = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
 
   useEffect(() => {
@@ -69,6 +70,7 @@ const Navigation = () => {
       if (firebaseUser) {
         const serializedUser = serializeUser(firebaseUser);
         dispatch(setUser(serializedUser));
+        dispatch(fetchUserTrips(firebaseUser.uid));
       } else {
         dispatch(clearUser());
       }
@@ -76,19 +78,27 @@ const Navigation = () => {
 
     return () => unsubscribe();
   }, [dispatch]);
-  return(
+
+  return (
     <NavigationContainer>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      <Stack.Navigator initialRouteName='Welcome'>
-        <Stack.Screen name='Welcome' component={WelcomeScreen} options={{headerShown: false}}/>
-        <Stack.Screen name='Login' component={LoginScreen} options={{headerShown: false}}/>
-        <Stack.Screen name='SignUp' component={SignUpScreen} options={{headerShown: false}}/>
-        <Stack.Screen name="MainTabs" component={TabNavigator} options={{ headerShown: false }}/>
-        <Stack.Screen name="TripExpenses" component={TripExpensesScreen} options={{ headerShown: false }}/>
-        <Stack.Screen name="AddExpenses" component={AddExpensesScreen} options={{ headerShown: false }}/>
+      <Stack.Navigator initialRouteName={user ? 'MainTabs' : 'Welcome'}>
+        {!user ? (
+          <>
+            <Stack.Screen name='Welcome' component={WelcomeScreen} options={{headerShown: false}}/>
+            <Stack.Screen name='Login' component={LoginScreen} options={{headerShown: false}}/>
+            <Stack.Screen name='SignUp' component={SignUpScreen} options={{headerShown: false}}/>
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="MainTabs" component={TabNavigator} options={{ headerShown: false }}/>
+            <Stack.Screen name="TripExpenses" component={TripExpensesScreen} options={{ headerShown: false }}/>
+            <Stack.Screen name="AddExpenses" component={AddExpensesScreen} options={{ headerShown: false }}/>
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
-  )
-}
+  );
+};
 
 export default Navigation;

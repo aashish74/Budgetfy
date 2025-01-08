@@ -10,6 +10,8 @@ import { CommonActions, useNavigation } from '@react-navigation/native'
 import { FIREBASE_AUTH } from '../config/firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { serializeUser } from '../store/userSerializer'
+import { fetchUserTrips } from '../store/tripSlice'
+import { AppDispatch } from '../store/store'
 
 type Props = NativeStackNavigationProp<RootStackParamList>
 
@@ -18,46 +20,32 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('')
     const [loading, setLocalLoading] = useState(false)
     const navigation = useNavigation<Props>()
-    const dispatch = useDispatch()
+    const dispatch = useDispatch<AppDispatch>()
 
     const isValidEmail = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return emailRegex.test(email)
     }
 
-    const handleSignIn = async () => {
-        if (loading) return
-
-        if (!email || !password) {
-            Alert.alert('Error', 'Please fill in all fields')
-            return
-        }
-
-        if (!isValidEmail(email)) {
-            Alert.alert('Error', 'Please enter a valid email address')
-            return
-        }
-
-        setLocalLoading(true)
-        dispatch(setLoading(true))
-
+    const handleLogin = async () => {
         try {
-            const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
-            const serializedUser = serializeUser(userCredential.user)
-            dispatch(setUser(serializedUser))
-            navigation.dispatch(
-                CommonActions.navigate({
-                    name: 'MainTabs'
-                })
-            )
+            if (email && password) {
+                const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
+                const serializedUser = serializeUser(userCredential.user);
+                dispatch(setUser(serializedUser));
+                
+                // Fetch trips after successful login
+                dispatch(fetchUserTrips(userCredential.user.uid));
+                
+                navigation.navigate('MainTabs');
+            } else {
+                Alert.alert('Error', 'Please fill in all fields');
+            }
         } catch (error: any) {
-            dispatch(setError(error.message))
-            Alert.alert('Error', error.message)
-        } finally {
-            setLocalLoading(false)
-            dispatch(setLoading(false))
+            console.error('Login error:', error);
+            Alert.alert('Error', error.message);
         }
-    }
+    };
 
     return (
         <View style={{ paddingTop: 25, backgroundColor: '#fff', height:'100%'}}>
@@ -95,7 +83,7 @@ const LoginScreen = () => {
                         shadowOffset: { width: 0, height: 2},
                         shadowRadius: 10,
                         elevation: 3, }}
-                        onPress={handleSignIn}
+                        onPress={handleLogin}
                         disabled={loading}
                 >
                     {loading ? (

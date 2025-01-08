@@ -1,32 +1,53 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, StatusBar } from 'react-native';
-import IMAGES from '../assets/images';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, StatusBar, Alert } from 'react-native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
-import { useDispatch } from 'react-redux';
-import { addTrip } from '../store/tripSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store/store';
+import { createTrip } from '../store/tripSlice';
+import IMAGES from '../assets/images';
 
-const ExpensesScreen = () => {
+
+export default function ExpensesScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.user);
+  
   const [place, setPlace] = useState('');
   const [country, setCountry] = useState('');
-  
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const dispatch = useDispatch();
 
-  const handleNext = () => {
-    if(place && country){
-      dispatch(addTrip({ 
-        place, 
-        country
-      }));
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'Home'
-        })
-      );
-      setCountry('');
-      setPlace('');
+  const handleNext = async () => {
+    if (place && country) {
+      if (!user?.uid) {
+        console.log('No user found');
+        return;
+      }
+
+      try {
+        console.log('Creating trip with data:', { place, country, userId: user.uid });
+        await dispatch(createTrip({ 
+          place, 
+          country,
+          userId: user.uid
+        })).unwrap();
+        
+        // Clear the inputs immediately
+        setPlace('');
+        setCountry('');
+        
+        // Force navigation to Home screen
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
+        
+      } catch (error) {
+        console.error('Error creating trip:', error);
+      }
+    } else {
+      // Optional: Add alert if fields are empty
+      Alert.alert('Please fill in both country and state');
     }
   };
   
@@ -68,7 +89,7 @@ const ExpensesScreen = () => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -83,5 +104,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
-export default ExpensesScreen;
