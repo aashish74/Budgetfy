@@ -1,25 +1,56 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { setUser, setError, setLoading } from '../store/userSlice'
 import BackButton from '../components/backButton'
 import IMAGES from '../assets/images';
 import { useNavigation } from '@react-navigation/native';
 import { FIREBASE_AUTH } from '../config/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { serializeUser } from '../store/userSerializer'
 
-export default function SignUpScreen() {
-  const [name, setName] = useState('');
+const SignUpScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigation()
-  
-  const handleSignUp = async() =>{
-    if(email && password){
-      navigate.goBack();
-      await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+  const [loading, setLocalLoading] = useState(false);
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSignUp = async () => {
+    if (loading) return;
+
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
     }
-    else{
+
+    if (!isValidEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
     }
-  }
+
+    setLocalLoading(true);
+    dispatch(setLoading(true));
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      const serializedUser = serializeUser(userCredential.user);
+      dispatch(setUser(serializedUser));
+      navigation.goBack();
+    } catch (error: any) {
+      dispatch(setError(error.message));
+      Alert.alert('Error', error.message);
+    } finally {
+      setLocalLoading(false);
+      dispatch(setLoading(false));
+    }
+  };
+
   return (
     <View style={{ paddingTop: 25, backgroundColor: '#fff', height: '100%' }}>
       <View style={{ position: 'absolute', zIndex: 1, paddingTop: 24, paddingLeft: 8 }}>
@@ -34,12 +65,6 @@ export default function SignUpScreen() {
           source={IMAGES.LOGIN} />
       </View>
       <View style={{ marginHorizontal: 25, marginBottom: 50 }}>
-        <TextInput
-          placeholder='Name'
-          style={{ padding: 15, borderWidth: 0.2, borderRadius: 20, marginBottom: 25 }}
-          value={name}
-          onChangeText={setName}
-        />
         <TextInput
           placeholder='Email'
           style={{ padding: 15, borderWidth: 0.2, borderRadius: 20, marginBottom: 25 }}
@@ -70,5 +95,11 @@ export default function SignUpScreen() {
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  // Your existing styles
+});
+
+export default SignUpScreen;
 
 
