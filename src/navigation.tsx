@@ -1,5 +1,5 @@
 import { Image, StatusBar} from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from './screens/HomeScreen';
@@ -15,7 +15,9 @@ import ProfileScreen from './screens/ProfileScreen';
 import { onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './config/firebase';
 import { useDispatch, useSelector} from 'react-redux';
-import { setUser } from './store/userSlice';
+import { clearUser, setUser } from './store/userSlice';
+import { RootState } from './store/store';
+import { serializeUser } from './store/userSerializer';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -59,12 +61,21 @@ function TabNavigator() {
 }
 
 const Navigation = () => {
-  const {user} = useSelector((state: any) => state.user)
-  const dispach = useDispatch()
-  onAuthStateChanged(FIREBASE_AUTH, u => {
-    console.log('got user : ', u);
-    dispach(setUser(u));
-  })
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user.user);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (firebaseUser) => {
+      if (firebaseUser) {
+        const serializedUser = serializeUser(firebaseUser);
+        dispatch(setUser(serializedUser));
+      } else {
+        dispatch(clearUser());
+      }
+    });
+
+    return () => unsubscribe();
+  }, [dispatch]);
   return(
     <NavigationContainer>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
