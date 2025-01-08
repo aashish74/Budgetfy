@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth} from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {API_KEY, API_ID, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID} from "@env";
 // TODO: Add SDKs for Firebase products that you want to use
 

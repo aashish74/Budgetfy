@@ -1,5 +1,7 @@
-import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { setUser, setError, setLoading } from '../store/userSlice'
 import BackButton from '../components/backButton'
 import IMAGES from '../assets/images'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -7,27 +9,56 @@ import { RootStackParamList } from '../types/navigation'
 import { CommonActions, useNavigation } from '@react-navigation/native'
 import { FIREBASE_AUTH } from '../config/firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
+import { serializeUser } from '../store/userSerializer'
 
-type Prop = NativeStackNavigationProp<RootStackParamList>
+type Props = NativeStackNavigationProp<RootStackParamList>
 
-export default function LoginScreen() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigation = useNavigation<Prop>();
-    const auth = FIREBASE_AUTH;
+const LoginScreen = () => {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [loading, setLocalLoading] = useState(false)
+    const navigation = useNavigation<Props>()
+    const dispatch = useDispatch()
 
-    const handleSignIn = async() => {
-        if(email && password){
-            // navigation.dispatch(
-            //     CommonActions.navigate({
-            //         name: 'MainTabs'
-            //     })
-            // )
-            await signInWithEmailAndPassword(auth, email, password);
-        }else{
-            
+    const isValidEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        return emailRegex.test(email)
+    }
+
+    const handleSignIn = async () => {
+        if (loading) return
+
+        if (!email || !password) {
+            Alert.alert('Error', 'Please fill in all fields')
+            return
+        }
+
+        if (!isValidEmail(email)) {
+            Alert.alert('Error', 'Please enter a valid email address')
+            return
+        }
+
+        setLocalLoading(true)
+        dispatch(setLoading(true))
+
+        try {
+            const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
+            const serializedUser = serializeUser(userCredential.user)
+            dispatch(setUser(serializedUser))
+            navigation.dispatch(
+                CommonActions.navigate({
+                    name: 'MainTabs'
+                })
+            )
+        } catch (error: any) {
+            dispatch(setError(error.message))
+            Alert.alert('Error', error.message)
+        } finally {
+            setLocalLoading(false)
+            dispatch(setLoading(false))
         }
     }
+
     return (
         <View style={{ paddingTop: 25, backgroundColor: '#fff', height:'100%'}}>
             <View style={{ position: 'absolute', zIndex: 1, paddingTop: 24, paddingLeft: 8 }}>
@@ -47,6 +78,7 @@ export default function LoginScreen() {
                     style={{ padding: 15, borderWidth: 0.2, borderRadius: 20, marginBottom: 25 }}
                     value={email}
                     onChangeText={setEmail}
+                    autoCapitalize="none"
                 />
                 <TextInput
                     secureTextEntry = {true}
@@ -64,8 +96,13 @@ export default function LoginScreen() {
                         shadowRadius: 10,
                         elevation: 3, }}
                         onPress={handleSignIn}
+                        disabled={loading}
                 >
-                    <Text style={{ textAlign: 'center', color: 'white', fontSize: 22, fontWeight: "bold" }}>Sign In</Text>
+                    {loading ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={{ textAlign: 'center', color: 'white', fontSize: 22, fontWeight: "bold" }}>Sign In</Text>
+                    )}
                 </TouchableOpacity>
             </View>
         </View>
@@ -73,3 +110,5 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({})
+
+export default LoginScreen
