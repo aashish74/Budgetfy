@@ -21,10 +21,12 @@ const initialState: TripState = {
   error: null
 };
 
-// Helper function to serialize timestamps
+// Helper function to safely serialize timestamps
 const serializeTrip = (trip: any) => ({
   ...trip,
-  createdAt: trip.createdAt ? new Date(trip.createdAt.seconds * 1000).toISOString() : new Date().toISOString(),
+  createdAt: trip.createdAt?.seconds ? 
+    new Date(trip.createdAt.seconds * 1000).toISOString() : 
+    new Date().toISOString()
 });
 
 export const createTrip = createAsyncThunk(
@@ -44,7 +46,7 @@ export const fetchUserTrips = createAsyncThunk(
   'trips/fetchUserTrips',
   async (userId: string) => {
     const trips = await getUserTrips(userId);
-    return trips.map(serializeTrip);
+    return trips.map(trip => serializeTrip(trip));
   }
 );
 

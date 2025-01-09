@@ -8,10 +8,15 @@ interface ExpenseState {
 
 const initialState: ExpenseState = {};
 
-// Helper function to safely serialize dates
+// Helper function to safely serialize timestamps
 const serializeExpense = (expense: any) => ({
   ...expense,
-  date: expense.date?.toISOString ? expense.date.toISOString() : new Date().toISOString(),
+  createdAt: expense.createdAt?.seconds ? 
+    new Date(expense.createdAt.seconds * 1000).toISOString() : 
+    new Date().toISOString(),
+  date: expense.date?.seconds ? 
+    new Date(expense.date.seconds * 1000).toISOString() : 
+    new Date().toISOString()
 });
 
 export const createExpense = createAsyncThunk(
@@ -33,7 +38,7 @@ export const fetchTripExpenses = createAsyncThunk(
     const expenses = await getTripExpenses(tripId);
     return {
       tripId,
-      expenses: expenses.map(serializeExpense)
+      expenses: expenses.map(expense => serializeExpense(expense))
     };
   }
 );
