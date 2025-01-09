@@ -10,6 +10,7 @@ A React Native mobile application for tracking travel expenses and managing trip
 - 💰 Monitor spending with detailed expense cards
 - 📱 Bottom tab navigation
 - 🎨 Modern UI with custom components
+- 🔄 Real-time data sync with Firebase
 
 ## Tech Stack
 
@@ -19,7 +20,7 @@ A React Native mobile application for tracking travel expenses and managing trip
 - React Navigation (Bottom Tabs & Stack)
 - Custom Components
 - React Navigation
-- Firebase Authentication
+- Firebase (Authentication & Firestore)
 
 ## Prerequisites
 
@@ -72,10 +73,12 @@ npm run android
 
 Budgetfy/
 ├── src/
-│   ├── components/     # Reusable components like BackButton
-│   ├── screens/        # Screen components (WelcomeScreen, SignUpScreen, etc.)
 │   ├── assets/        # Images and static assets
+│   ├── components/    # Reusable components like BackButton
 │   ├── config/        # Firebase and other configurations 
+│   ├── screens/       # Screen components (WelcomeScreen, SignUpScreen, etc.)
+│   └── store/         # Redux store and slices
+│   └── types/         # TypeScript interfaces
 │   └── navigation.tsx # Navigation setup
 ├── ios/              # iOS native code
 ├── android/          # Android native code
@@ -97,6 +100,8 @@ Budgetfy/
 - Add expenses with title, amount, and category
 - View expenses per trip
 - Categorize expenses with predefined categories
+- Delete expenses
+- Multi-currency support
 
 ### User Interface
 - Clean and modern design
