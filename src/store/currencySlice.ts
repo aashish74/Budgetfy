@@ -1,28 +1,38 @@
-import { createSlice, PayloadAction} from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type CurrencyType = {
-    symbol:string;
-    id:string;
-    rate:number;
+interface Currency {
+  id: string;
+  symbol: string;
+  rate: number;
 }
 
-interface currencyState{
-    currency: CurrencyType;
+interface CurrencyState {
+  baseCurrency: Currency;
+  targetCurrency: Currency;
 }
 
-const initialState: currencyState = {
-    currency : {symbol: '₹', id: 'INR', rate:1},
-}
+const initialState: CurrencyState = {
+  baseCurrency: {
+    id: 'INR',
+    symbol: '₹',
+    rate: 1
+  },
+  targetCurrency: {
+    id: 'USD',
+    symbol: '$',
+    rate: 0.012 // This will be updated with real rates
+  }
+};
 
-export const currencySlice = createSlice({
-    name: 'currency',
-    initialState,
-    reducers:{
-        setCurrency: (state, action: PayloadAction<CurrencyType>)=>{
-            state.currency = action.payload;
-        }
-    }
-})
+const currencySlice = createSlice({
+  name: 'currency',
+  initialState,
+  reducers: {
+    setTargetCurrency: (state, action: PayloadAction<Currency>) => {
+      state.targetCurrency = action.payload;
+    },
+  },
+});
 
+export const { setTargetCurrency } = currencySlice.actions;
 export default currencySlice.reducer;
-export const {setCurrency} = currencySlice.actions;
