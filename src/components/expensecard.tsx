@@ -5,6 +5,7 @@ import { RootState } from '../store/store'
 import { deleteExpense } from '../store/expenseSlice'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import { AppDispatch } from '../store/store'
+import { useTheme } from '../hooks/useTheme'
 
 interface ExpenseProps {
   expense: {
@@ -19,6 +20,7 @@ interface ExpenseProps {
 export default function ExpenseCard({ expense }: ExpenseProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { targetCurrency } = useSelector((state: RootState) => state.currency);
+  const theme = useTheme();
   
   const convertAmount = (amount: number): string => {
     const convertedAmount = amount * targetCurrency.rate;
@@ -55,18 +57,25 @@ export default function ExpenseCard({ expense }: ExpenseProps) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { 
+      backgroundColor: theme.colors.card,
+      shadowColor: theme.colors.text
+    }]}>
       <View style={styles.row}>
         <View>
-          <Text style={styles.title}>{expense.title}</Text>
-          <Text style={styles.category}>{expense.category}</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]}>
+            {expense.title}
+          </Text>
+          <Text style={[styles.category, { color: theme.colors.grey }]}>
+            {expense.category}
+          </Text>
         </View>
         <View style={styles.rightSection}>
-          <Text style={styles.amount}>
+          <Text style={[styles.amount, { color: theme.colors.text }]}>
             {targetCurrency.symbol}{convertAmount(expense.amount)}
           </Text>
           <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-            <Icon name="delete-outline" size={20} color="#ff4444" />
+            <Icon name="delete-outline" size={20} color={theme.colors.error} />
           </TouchableOpacity>
         </View>
       </View>
@@ -76,7 +85,6 @@ export default function ExpenseCard({ expense }: ExpenseProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f0f8ff',
     padding: 10,
     borderRadius: 10,
     marginVertical: 5,

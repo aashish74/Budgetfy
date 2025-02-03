@@ -1,15 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
 import tripReducer from './tripSlice';
 import expenseReducer from './expenseSlice';
-import currencySlice  from './currencySlice';
+import currencySlice from './currencySlice';
 import userSlice from './userSlice';
+import themeReducer from './themeSlice';
 
 export const store = configureStore({
   reducer: {
     trips: tripReducer,
     expenses: expenseReducer,
     currency: currencySlice,
-    user: userSlice
+    user: userSlice,
+    theme: themeReducer,
   },
 });
 
