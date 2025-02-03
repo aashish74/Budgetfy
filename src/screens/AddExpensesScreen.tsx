@@ -77,12 +77,19 @@ export default function AddExpensesScreen() {
           value={title}
           onChangeText={setTitle}
         />
-        <Text style={{ fontSize: 25, fontWeight: '600', marginBottom: 10 }}>Item Amount</Text>
-        <TextInput
-          style={{ padding: 12, borderWidth: 0.2, borderRadius: 20 }}
-          value={amount}
-          onChangeText={setAmount}
-        />
+        <Text style={{ fontSize: 25, fontWeight: '600', marginBottom: 10 }}>
+          Item Amount (in ₹)
+        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ fontSize: 20, marginRight: 8 }}>₹</Text>
+          <TextInput
+            style={{ flex: 1, padding: 12, borderWidth: 0.2, borderRadius: 20 }}
+            value={amount}
+            onChangeText={setAmount}
+            keyboardType="numeric"
+            placeholder="Enter amount in INR"
+          />
+        </View>
       </View>
       <View style={{ marginHorizontal: 25 }}>
         <Text style={{ color: 'grey', fontWeight: '600', fontSize: 20, marginBottom: 15, }}>Categories</Text>
