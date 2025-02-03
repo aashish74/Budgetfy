@@ -9,7 +9,9 @@ export type RootStackParamList = {
     country: string;
     id: string;
   };
+  Currency: undefined;
 };
+
 
 export type TabParamList = {
   Home: undefined;

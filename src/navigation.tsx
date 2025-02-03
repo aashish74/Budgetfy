@@ -19,6 +19,7 @@ import { clearUser, setUser } from './store/userSlice';
 import { AppDispatch, RootState } from './store/store';
 import { serializeUser } from './store/userSerializer';
 import { fetchUserTrips } from './store/tripSlice';
+import CurrencyScreen from './screens/CurrencyScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -94,6 +95,7 @@ const Navigation = () => {
             <Stack.Screen name="MainTabs" component={TabNavigator} options={{ headerShown: false }}/>
             <Stack.Screen name="TripExpenses" component={TripExpensesScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="AddExpenses" component={AddExpensesScreen} options={{ headerShown: false }}/>
+            <Stack.Screen name="Currency" component={CurrencyScreen} options={{headerShown:false}}/>
           </>
         )}
       </Stack.Navigator>
