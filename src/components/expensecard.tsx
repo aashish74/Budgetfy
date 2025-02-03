@@ -18,10 +18,10 @@ interface ExpenseProps {
 
 export default function ExpenseCard({ expense }: ExpenseProps) {
   const dispatch = useDispatch<AppDispatch>();
-  const { currency } = useSelector((state: RootState) => state.currency);
+  const { targetCurrency } = useSelector((state: RootState) => state.currency);
   
   const convertAmount = (amount: number): string => {
-    const convertedAmount = amount * currency.rate;
+    const convertedAmount = amount * targetCurrency.rate;
     return convertedAmount.toFixed(2);
   }
 
@@ -62,7 +62,9 @@ export default function ExpenseCard({ expense }: ExpenseProps) {
           <Text style={styles.category}>{expense.category}</Text>
         </View>
         <View style={styles.rightSection}>
-          <Text style={styles.amount}>{currency.symbol}{convertAmount(expense.amount)}</Text>
+          <Text style={styles.amount}>
+            {targetCurrency.symbol}{convertAmount(expense.amount)}
+          </Text>
           <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
             <Icon name="delete-outline" size={20} color="#ff4444" />
           </TouchableOpacity>

@@ -23,7 +23,7 @@ export default function TripExpensesScreen() {
   const route = useRoute();
   const { place, country, id: tripId } = route.params as { place: string; country: string; id: string };
   const expenses = useSelector(selectExpensesByTripId(tripId));
-  const { currency } = useSelector((state: RootState) => state.currency);
+  const { targetCurrency } = useSelector((state: RootState) => state.currency);
 
   // Add this useEffect to fetch expenses when screen loads
   useEffect(() => {
@@ -35,9 +35,10 @@ export default function TripExpensesScreen() {
   // Calculate total expenses
   const totalExpenses = useMemo(() => {
     const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-    const convertedTotal = total * currency.rate;
+    // amount is in INR, convert to target currency
+    const convertedTotal = total * targetCurrency.rate;
     return convertedTotal.toFixed(2);
-  }, [expenses, currency.rate]);
+  }, [expenses, targetCurrency.rate]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -63,7 +64,7 @@ export default function TripExpensesScreen() {
       <View style={styles.totalCard}>
         <Text style={styles.totalLabel}>Total Expenses</Text>
         <Text style={styles.totalAmount}>
-          {currency.symbol}{totalExpenses}
+          {targetCurrency.symbol}{totalExpenses}
         </Text>
       </View>
 
