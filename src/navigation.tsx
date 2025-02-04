@@ -101,7 +101,7 @@ const Navigation = () => {
   const { mode } = useSelector((state: RootState) => state.theme);
   
   const navigationTheme = {
-    dark: theme === darkTheme,
+    dark: mode === 'dark',
     colors: {
       primary: theme.colors.primary,
       background: theme.colors.background,

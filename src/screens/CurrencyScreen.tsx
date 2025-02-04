@@ -67,7 +67,7 @@ export default function CurrencyScreen() {
                     </Text>
                 </View>
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#0000ff" />
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
                 </View>
             </ThemedView>
         );
