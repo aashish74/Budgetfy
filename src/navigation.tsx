@@ -20,23 +20,41 @@ import { AppDispatch, RootState } from './store/store';
 import { serializeUser } from './store/userSerializer';
 import { fetchUserTrips } from './store/tripSlice';
 import CurrencyScreen from './screens/CurrencyScreen';
+import { useTheme } from './hooks/useTheme';
+import { darkTheme } from './theme/theme';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function TabNavigator() {
+  const theme = useTheme();
+  
   return (
     <Tab.Navigator
       screenOptions={{ 
         headerShown: false,
         tabBarShowLabel: false,
+        tabBarStyle: {
+          backgroundColor: theme.colors.background,
+          borderTopWidth: 0,
+          elevation: 0,
+          height: 60,
+          paddingBottom: 10,
+        },
       }}>
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon:({focused}) => (
-              <Image source={IMAGES.HOME} style = {{height:30, width: 30, tintColor: focused ? 'blue': 'grey' }} />
+          tabBarIcon: ({focused}) => (
+            <Image 
+              source={IMAGES.HOME} 
+              style={{ 
+                height: 24, 
+                width: 24, 
+                tintColor: focused ? theme.colors.primary : theme.colors.grey 
+              }} 
+            />
           ),
         }}
       />
@@ -44,8 +62,15 @@ function TabNavigator() {
         name="Expenses"
         component={ExpensesScreen}
         options={{
-          tabBarIcon:({focused}) => (
-              <Image source={IMAGES.PLUS} style = {{height:35, width:35, tintColor: focused ? 'blue': 'grey'}}/>
+          tabBarIcon: ({focused}) => (
+            <Image 
+              source={IMAGES.PLUS} 
+              style={{ 
+                height: 28, 
+                width: 28, 
+                tintColor: focused ? theme.colors.primary : theme.colors.grey 
+              }}
+            />
           ),
         }}
       />
@@ -53,8 +78,15 @@ function TabNavigator() {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon:({focused}) => (
-              <Image source={IMAGES.BOTTOMPROFILE} style = {{height:30, width: 30, tintColor: focused ? 'blue': 'grey' }} />
+          tabBarIcon: ({focused}) => (
+            <Image 
+              source={IMAGES.BOTTOMPROFILE} 
+              style={{ 
+                height: 24, 
+                width: 24, 
+                tintColor: focused ? theme.colors.primary : theme.colors.grey 
+              }} 
+            />
           ),
         }}
       />
@@ -65,6 +97,20 @@ function TabNavigator() {
 const Navigation = () => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
+  const theme = useTheme();
+  const { mode } = useSelector((state: RootState) => state.theme);
+  
+  const navigationTheme = {
+    dark: mode === 'dark',
+    colors: {
+      primary: theme.colors.primary,
+      background: theme.colors.background,
+      card: theme.colors.card,
+      text: theme.colors.text,
+      border: theme.colors.border,
+      notification: theme.colors.error,
+    },
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (firebaseUser) => {
@@ -81,8 +127,12 @@ const Navigation = () => {
   }, [dispatch]);
 
   return (
-    <NavigationContainer>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+    <NavigationContainer theme={navigationTheme}>
+      <StatusBar 
+        barStyle={mode === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={mode === 'dark' ? '#000000' : '#ffffff'}
+        translucent
+      />
       <Stack.Navigator initialRouteName={user ? 'MainTabs' : 'Welcome'}>
         {!user ? (
           <>
