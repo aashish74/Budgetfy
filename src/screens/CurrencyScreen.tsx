@@ -5,6 +5,8 @@ import BackButton from '../components/backButton'
 import { fetchExchangeRates } from '../services/currencyService'
 import { useDispatch } from 'react-redux'
 import { setTargetCurrency } from '../store/currencySlice'
+import { useTheme } from '../hooks/useTheme'
+import { ThemedView } from '../components/ThemedView'
 
 const CURRENCIES = [
     { flag: '🇪🇺', name: 'Euro', country: 'Europe', code: 'EUR' },
@@ -23,7 +25,8 @@ const ALL_CURRENCIES = [
 export default function CurrencyScreen() {
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
-    const [rates, setRates] = useState<{[key: string]: number}>({});
+    const [rates, setRates] = useState<{ [key: string]: number }>({});
+    const theme = useTheme();
 
     useEffect(() => {
         loadExchangeRates();
@@ -42,11 +45,11 @@ export default function CurrencyScreen() {
 
     const handleCurrencySelect = (currencyCode: string) => {
         const rate = rates[currencyCode];
-        const symbol = currencyCode === 'USD' ? '$' : 
-                      currencyCode === 'EUR' ? '€' : 
-                      currencyCode === 'INR' ? '₹' : 
-                      currencyCode === 'GBP' ? '£' : '$';
-        
+        const symbol = currencyCode === 'USD' ? '$' :
+            currencyCode === 'EUR' ? '€' :
+                currencyCode === 'INR' ? '₹' :
+                    currencyCode === 'GBP' ? '£' : '$';
+
         dispatch(setTargetCurrency({
             id: currencyCode,
             symbol,
@@ -56,70 +59,104 @@ export default function CurrencyScreen() {
 
     if (loading) {
         return (
-            <SafeAreaView style={styles.container}>
-                <View style={styles.header}>
+            <ThemedView style={styles.container}>
+                <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
                     <BackButton />
-                    <Text style={styles.headerTitle}>CHANGE CURRENCY</Text>
+                    <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
+                        CHANGE CURRENCY
+                    </Text>
                 </View>
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#0000ff" />
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
                 </View>
-            </SafeAreaView>
+            </ThemedView>
         );
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <BackButton />
-                <Text style={styles.headerTitle}>CHANGE CURRENCY</Text>
-            </View>
+        <SafeAreaView style={{ flex: 1 }}>
+            <ThemedView style={styles.container}>
+                <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
+                    <BackButton />
+                    <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
+                        CHANGE CURRENCY
+                    </Text>
+                </View>
 
-            <ScrollView style={styles.content}>
-                <Text style={styles.sectionTitle}>Most used</Text>
-                <View style={styles.currencyList}>
-                    {CURRENCIES.map((currency, index) => (
-                        <TouchableOpacity 
-                            key={index}
-                            style={styles.currencyItem}
-                            onPress={() => handleCurrencySelect(currency.code)}
-                        >
-                            <View style={styles.currencyInfo}>
-                                <Text style={styles.flag}>{currency.flag}</Text>
-                                <View>
-                                    <Text style={styles.currencyName}>{currency.name}</Text>
-                                    <Text style={styles.countryName}>{currency.country}</Text>
+                <ScrollView style={styles.content}>
+                    <Text style={[styles.sectionTitle, { color: theme.colors.grey }]}>
+                        Most used
+                    </Text>
+                    <View style={[styles.currencyList, { 
+                        backgroundColor: theme.colors.card,
+                        borderColor: theme.colors.border 
+                    }]}>
+                        {CURRENCIES.map((currency, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                style={[styles.currencyItem, { 
+                                    borderBottomColor: theme.colors.border,
+                                    backgroundColor: theme.colors.card 
+                                }]}
+                                onPress={() => handleCurrencySelect(currency.code)}
+                            >
+                                <View style={styles.currencyInfo}>
+                                    <Text style={styles.flag}>{currency.flag}</Text>
+                                    <View>
+                                        <Text style={[styles.currencyName, { color: theme.colors.text }]}>
+                                            {currency.name}
+                                        </Text>
+                                        <Text style={[styles.countryName, { color: theme.colors.grey }]}>
+                                            {currency.country}
+                                        </Text>
+                                    </View>
                                 </View>
-                            </View>
-                            <View style={styles.rateContainer}>
-                                <Text style={styles.currencyCode}>{currency.code}</Text>
-                                <Text style={styles.exchangeRate}>
-                                    {rates[currency.code]?.toFixed(4)}
+                                <View style={styles.rateContainer}>
+                                    <Text style={[styles.currencyCode, { color: theme.colors.grey }]}>
+                                        {currency.code}
+                                    </Text>
+                                    <Text style={[styles.exchangeRate, { color: theme.colors.grey }]}>
+                                        {rates[currency.code]?.toFixed(4)}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
+                    <Text style={[styles.sectionTitle, { color: theme.colors.grey }]}>
+                        All currencies
+                    </Text>
+                    <View style={[styles.currencyList, { 
+                        backgroundColor: theme.colors.card,
+                        borderColor: theme.colors.border 
+                    }]}>
+                        {ALL_CURRENCIES.map((currency, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                style={[styles.currencyItem, { 
+                                    borderBottomColor: theme.colors.border,
+                                    backgroundColor: theme.colors.card 
+                                }]}
+                            >
+                                <View style={styles.currencyInfo}>
+                                    <Text style={styles.flag}>{currency.flag}</Text>
+                                    <View>
+                                        <Text style={[styles.currencyName, { color: theme.colors.text }]}>
+                                            {currency.name}
+                                        </Text>
+                                        <Text style={[styles.countryName, { color: theme.colors.grey }]}>
+                                            {currency.country}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <Text style={[styles.currencyCode, { color: theme.colors.grey }]}>
+                                    {currency.code}
                                 </Text>
-                            </View>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-
-                <Text style={styles.sectionTitle}>All currencies</Text>
-                <View style={styles.currencyList}>
-                    {ALL_CURRENCIES.map((currency, index) => (
-                        <TouchableOpacity 
-                            key={index}
-                            style={styles.currencyItem}
-                        >
-                            <View style={styles.currencyInfo}>
-                                <Text style={styles.flag}>{currency.flag}</Text>
-                                <View>
-                                    <Text style={styles.currencyName}>{currency.name}</Text>
-                                    <Text style={styles.countryName}>{currency.country}</Text>
-                                </View>
-                            </View>
-                            <Text style={styles.currencyCode}>{currency.code}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            </ScrollView>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </ScrollView>
+            </ThemedView>
         </SafeAreaView>
     )
 }
@@ -127,7 +164,6 @@ export default function CurrencyScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
     },
     header: {
         flexDirection: 'row',
@@ -175,11 +211,9 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     currencyList: {
-        backgroundColor: '#fff',
         borderRadius: 12,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: '#eee',
     },
     currencyItem: {
         flexDirection: 'row',
@@ -188,7 +222,6 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         paddingHorizontal: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
     },
     currencyInfo: {
         flexDirection: 'row',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, StatusBar, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, StatusBar, Alert, Dimensions, SafeAreaView, KeyboardAvoidingView, ScrollView, Platform, useColorScheme } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
@@ -7,12 +7,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store/store';
 import { createTrip } from '../store/tripSlice';
 import IMAGES from '../assets/images';
+import { useTheme } from '../hooks/useTheme';
+import { ThemedView } from '../components/ThemedView';
 
+const { width, height } = Dimensions.get('window');
+const scale = Math.min(width, height) / 375;
 
 export default function ExpensesScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.user);
+  const theme = useTheme();
   
   const [place, setPlace] = useState('');
   const [country, setCountry] = useState('');
@@ -50,57 +55,116 @@ export default function ExpensesScreen() {
       Alert.alert('Please fill in both country and state');
     }
   };
+
+  const isDarkmode = useColorScheme() === 'dark';
   
   return (
-    <View style={styles.container}>
-      <StatusBar backgroundColor={'#fff'}/>
-      <View style={{ marginTop: 15 }}>
-        <Text style={styles.heading}>Add Trip</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 10, marginTop: 7 }}>
-          <Image source={IMAGES[4]}
-            style={{ height: 350, width: 350 }}
-          />
-        </View>
-        <View style={{ marginHorizontal: 15 }}>
-          <Text style={{ fontSize: 25, fontWeight: 'bold', marginBottom: 10 }}>Which Country</Text>
-          <TextInput
-            style={{ padding: 12, borderWidth: 0.2, borderRadius: 20, marginBottom: 10 }}
-            value={country}
-            onChangeText={ setCountry}
-          />
-          <Text style={{ fontSize: 25, fontWeight: 'bold', marginBottom: 10 }}>Which State</Text>
-          <TextInput
-            style={{ padding: 12, borderWidth: 0.5, borderRadius: 20 }}
-            value={place}
-            onChangeText={setPlace}
-          />
-        </View>
-        <View style={{ marginHorizontal: 18, marginTop: 18 }}>
-          <Text style={{ color: 'grey', fontSize: 18, fontWeight: '500' }}>Add your expense by opening Trip from Home screen</Text>
-        </View>
-      </View>
-      <View>
+    <SafeAreaView style={{ flex: 1, marginTop:60}}>
+      <StatusBar
+        barStyle = {isDarkmode ? 'light-content' : 'dark-content'} 
+      />
+          <ThemedView style={styles.container}>
+            <Text style={[styles.title, { color: theme.colors.text }]}>
+              Add Trip
+            </Text>
+
+            <View style={styles.bannerContainer}>
+              <Image 
+                source={IMAGES[4]} 
+                style={styles.bannerImage}
+                resizeMode="contain"
+              />
+            </View>
+
+            <View style={styles.formContainer}>
+              <Text style={[styles.label, { color: theme.colors.text }]}>Place</Text>
+              <TextInput
+                style={[styles.input, {
+                  borderColor: theme.colors.border,
+                  backgroundColor: theme.colors.card,
+                  color: theme.colors.text
+                }]}
+                value={place}
+                onChangeText={setPlace}
+                placeholderTextColor={theme.colors.grey}
+                placeholder="Enter place name"
+              />
+
+              <Text style={[styles.label, { color: theme.colors.text }]}>Country</Text>
+              <TextInput
+                style={[styles.input, {
+                  borderColor: theme.colors.border,
+                  backgroundColor: theme.colors.card,
+                  color: theme.colors.text
+                }]}
+                value={country}
+                onChangeText={setCountry}
+                placeholderTextColor={theme.colors.grey}
+                placeholder="Enter country name"
+              />
+            </View>
+
+            {/* <View style={{ height: 100 }} /> */}
+          </ThemedView>
+
         <TouchableOpacity
-          style={{ marginBottom: 30, backgroundColor: '#32cd32', padding: 12, marginHorizontal: 17, borderRadius: 16 }}
+          style={[styles.addButton, { backgroundColor: theme.colors.success }]}
           onPress={handleNext}
         >
-          <Text style={{ textAlign: 'center', color: 'white', fontSize: 22, fontWeight: "bold" }}>Add Trip</Text>
+          <Text style={styles.buttonText}>Add Trip</Text>
         </TouchableOpacity>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    paddingTop:25
   },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  title: {
+    fontSize: 34,
+    fontWeight: '600',
     textAlign: 'center',
+    paddingBottom: 16,
+  },
+  bannerContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  bannerImage: {
+    width: width * 0.7,
+    height: width * 0.5,
+  },
+  formContainer: {
+    paddingHorizontal: 16,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+    marginTop: 16,
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+  },
+  addButton: {
+    marginHorizontal: 16,
+    height: 54,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 30,
+    left: 0,
+    right: 0,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
   },
 });

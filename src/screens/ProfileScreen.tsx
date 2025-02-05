@@ -1,13 +1,16 @@
 import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, Modal, PermissionsAndroid, Platform, Linking, Alert } from 'react-native'
 import React, { useMemo, useState } from 'react'
 import IMAGES from '../assets/images'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../store/store'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { launchCamera, launchImageLibrary, ImagePickerResponse, PhotoQuality, MediaType } from 'react-native-image-picker'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from 'types/navigation'
 import { useNavigation } from '@react-navigation/native'
+import { useTheme } from '../hooks/useTheme'
+import { setThemeMode } from '../store/themeSlice'
+import type { ThemeMode } from '../store/themeSlice'
 
 type Props = NativeStackNavigationProp<RootStackParamList>;
 
@@ -16,6 +19,9 @@ export default function ProfileScreen() {
   const trips = useSelector((state: RootState) => state.trips.trips);
   const expenses = useSelector((state: RootState) => state.expenses);
   const navigation = useNavigation<Props>();
+  const dispatch = useDispatch();
+  const theme = useTheme();
+  const { mode } = useSelector((state: RootState) => state.theme);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [profileImage, setProfileImage] = useState(IMAGES.PROFILE);
@@ -120,13 +126,20 @@ export default function ProfileScreen() {
     });
   };
 
+  const handleThemeChange = () => {
+    const themes: ThemeMode[] = ['light', 'dark', 'system'];
+    const currentIndex = themes.indexOf(mode);
+    const nextTheme = themes[(currentIndex + 1) % themes.length];
+    dispatch(setThemeMode(nextTheme));
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Profile</Text>
       </View>
 
       {/* Profile Card */}
@@ -185,25 +198,45 @@ export default function ProfileScreen() {
       </View>
 
       {/* Settings Section */}
-      <View style={styles.settingsContainer}>
-        <Text style={styles.sectionTitle}>Settings</Text>
+      <View style={[styles.settingsContainer, { backgroundColor: theme.colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Settings</Text>
+        
+        {/* Currency Setting */}
         <TouchableOpacity 
-          style={styles.settingItem}
+          style={[styles.settingItem, { borderBottomColor: theme.colors.border }]}
           onPress={() => navigation.navigate('Currency')}
         >
-          <Text style={styles.settingText}>Currency</Text>
+          <Text style={[styles.settingText, { color: theme.colors.text }]}>Currency</Text>
           <View style={styles.currencyValue}>
-            <Text style={styles.settingValue}>{targetCurrency.symbol} {targetCurrency.id}</Text>
+            <Text style={[styles.settingValue, { color: theme.colors.grey }]}>
+              {targetCurrency.symbol} {targetCurrency.id}
+            </Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Theme</Text>
-          <Text style={styles.settingValue}>Light</Text>
+
+        {/* Theme Setting */}
+        <TouchableOpacity 
+          style={[styles.settingItem, { borderBottomColor: theme.colors.border }]}
+          onPress={handleThemeChange}
+        >
+          <Text style={[styles.settingText, { color: theme.colors.text }]}>Theme</Text>
+          <Text style={[styles.settingValue, { color: theme.colors.grey }]}>
+            {mode.charAt(0).toUpperCase() + mode.slice(1)}
+          </Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Language</Text>
-          <Text style={styles.settingValue}>English</Text>
+          <Text style={[styles.settingText, { color: theme.colors.text }]}>Language</Text>
+          <Text style={[styles.settingValue, { color: theme.colors.grey }]}>English</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.settingItem, { borderBottomColor: theme.colors.border }]}
+          onPress={() => navigation.navigate('Currency')}
+        >
+          <Text style={[styles.settingText, { color: theme.colors.text }]}>Help</Text>
+        </TouchableOpacity>
+
       </View>
 
       {/* Logout Button */}
@@ -309,8 +342,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#e0e0e0',
   },
   settingText: {
     fontSize: 16,
@@ -377,5 +410,12 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     color: 'red',
+  },
+  settingValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingIcon: {
+    marginRight: 8,
   },
 })
