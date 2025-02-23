@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store/store';
-import { createTrip } from '../store/tripSlice';
+import { addTrip } from '../store/tripSlice';
 import IMAGES from '../assets/images';
 import { useTheme } from '../hooks/useTheme';
 import { ThemedView } from '../components/ThemedView';
@@ -22,36 +22,23 @@ export default function ExpensesScreen() {
   const [place, setPlace] = useState('');
   const [country, setCountry] = useState('');
 
-  const handleNext = async () => {
-    if (place && country) {
-      if (!user?.uid) {
-        console.log('No user found');
-        return;
-      }
-
-      try {
-        console.log('Creating trip with data:', { place, country, userId: user.uid });
-        await dispatch(createTrip({ 
-          place, 
-          country,
-          userId: user.uid
-        })).unwrap();
-        
-        // Clear the inputs immediately
-        setPlace('');
-        setCountry('');
-        
-        // Force navigation to Home screen
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
-        
-      } catch (error) {
-        console.error('Error creating trip:', error);
-      }
+  const handleNext = () => {
+    if (place && country && user?.uid) {
+      dispatch(addTrip({ 
+        place, 
+        country,
+        userId: user.uid,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString()
+      }));
+      
+      setPlace('');
+      setCountry('');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
     } else {
-      // Optional: Add alert if fields are empty
       Alert.alert('Please fill in both country and state');
     }
   };

@@ -232,9 +232,9 @@ export default function ProfileScreen() {
 
         <TouchableOpacity 
           style={[styles.settingItem, { borderBottomColor: theme.colors.border }]}
-          onPress={() => navigation.navigate('Currency')}
+          onPress={() => navigation.navigate('Statistics')}
         >
-          <Text style={[styles.settingText, { color: theme.colors.text }]}>Help</Text>
+          <Text style={[styles.settingText, { color: theme.colors.text }]}>Statistics</Text>
         </TouchableOpacity>
 
       </View>

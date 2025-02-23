@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store/store';
-import { createExpense } from '../store/expenseSlice';
+import { createExpense, addExpense } from '../store/expenseSlice';
 import BackButton from '../components/backButton';
 import IMAGES from '../assets/images';
 import { categories } from '../components/categories';
@@ -34,7 +34,7 @@ export default function AddExpensesScreen() {
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
 
-  const handleAddExpense = async () => {
+  const handleAddExpense = () => {
     try {
       if (!user?.uid) {
         Alert.alert('Error', 'User not found');
@@ -46,17 +46,16 @@ export default function AddExpensesScreen() {
         return;
       }
 
-      const expenseData = {
+      dispatch(addExpense({
         tripId: route.params.tripId,
         title,
         amount: parseFloat(amount),
         category,
         description,
-        date: new Date(),
+        date: new Date().toISOString(),
         userId: user.uid
-      };
-
-      await dispatch(createExpense(expenseData)).unwrap();
+      }));
+      
       navigation.goBack();
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to add expense');

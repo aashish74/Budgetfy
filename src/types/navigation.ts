@@ -10,6 +10,7 @@ export type RootStackParamList = {
     id: string;
   };
   Currency: undefined;
+  Statistics: undefined;
 };
 
 
