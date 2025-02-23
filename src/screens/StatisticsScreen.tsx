@@ -85,7 +85,7 @@ export default function StatisticsScreen() {
                                 innerRadius={CHART_SIZE / 4}
                                 textSize={12}
                                 centerLabelComponent={() => (
-                                    <Text style={[styles.centerLabel, { color: theme.colors.text }]}>
+                                    <Text style={[styles.centerLabel, { color: '#000000' }]}>
                                         {targetCurrency.symbol}
                                         {overallStats.total.toFixed(2)}
                                     </Text>
@@ -131,7 +131,7 @@ export default function StatisticsScreen() {
                                                 innerRadius={(CHART_SIZE * 0.8) / 4}
                                                 textSize={12}
                                                 centerLabelComponent={() => (
-                                                    <Text style={[styles.centerLabel, { color: theme.colors.text }]}>
+                                                    <Text style={[styles.centerLabel, { color: '#000000' }]}>
                                                         {targetCurrency.symbol}
                                                         {getTripStats(trip.id).total.toFixed(2)}
                                                     </Text>
