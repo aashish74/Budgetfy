@@ -9,7 +9,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { fetchUserTrips } from '../store/tripSlice';
 import { AppDispatch } from '../store/store';
 import { ThemedView } from '../components/ThemedView';
 import { useTheme } from '../hooks/useTheme';
@@ -31,7 +30,8 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (user?.uid) {
-      dispatch(fetchUserTrips(user.uid));
+      // No need to fetch from Firebase anymore
+      // The trips are managed entirely in Redux now
     }
   }, [dispatch, user]);
 
