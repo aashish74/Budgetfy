@@ -10,7 +10,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native'
 import { FIREBASE_AUTH } from '../config/firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { serializeUser } from '../store/userSerializer'
-import { fetchUserTrips } from '../store/tripSlice'
 import { AppDispatch } from '../store/store'
 
 type Props = NativeStackNavigationProp<RootStackParamList>
@@ -28,22 +27,33 @@ const LoginScreen = () => {
     }
 
     const handleLogin = async () => {
+        if (loading) return;
+
+        if (!email || !password) {
+            Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
+
+        setLocalLoading(true);
+        dispatch(setLoading(true));
+
         try {
-            if (email && password) {
-                const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
-                const serializedUser = serializeUser(userCredential.user);
-                dispatch(setUser(serializedUser));
-                
-                // Fetch trips after successful login
-                dispatch(fetchUserTrips(userCredential.user.uid));
-                
-                navigation.navigate('MainTabs');
-            } else {
-                Alert.alert('Error', 'Please fill in all fields');
-            }
+            const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
+            const serializedUser = serializeUser(userCredential.user);
+            dispatch(setUser(serializedUser));
+            
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'MainTabs' }],
+                })
+            );
         } catch (error: any) {
-            console.error('Login error:', error);
+            dispatch(setError(error.message));
             Alert.alert('Error', error.message);
+        } finally {
+            setLocalLoading(false);
+            dispatch(setLoading(false));
         }
     };
 

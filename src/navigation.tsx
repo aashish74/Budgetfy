@@ -18,10 +18,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearUser, setUser } from './store/userSlice';
 import { AppDispatch, RootState } from './store/store';
 import { serializeUser } from './store/userSerializer';
-import { fetchUserTrips } from './store/tripSlice';
+import { setTrips } from './store/tripSlice';
 import CurrencyScreen from './screens/CurrencyScreen';
 import { useTheme } from './hooks/useTheme';
 import { darkTheme } from './theme/theme';
+import StatisticsScreen from './screens/StatisticsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -117,9 +118,9 @@ const Navigation = () => {
       if (firebaseUser) {
         const serializedUser = serializeUser(firebaseUser);
         dispatch(setUser(serializedUser));
-        dispatch(fetchUserTrips(firebaseUser.uid));
       } else {
         dispatch(clearUser());
+        dispatch(setTrips([]));
       }
     });
 
@@ -146,6 +147,7 @@ const Navigation = () => {
             <Stack.Screen name="TripExpenses" component={TripExpensesScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="AddExpenses" component={AddExpensesScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Currency" component={CurrencyScreen} options={{headerShown:false}}/>
+            <Stack.Screen name='Statistics' component={StatisticsScreen} options={{headerShown:false}}/>
           </>
         )}
       </Stack.Navigator>
