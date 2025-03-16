@@ -11,6 +11,10 @@ import { useNavigation } from '@react-navigation/native'
 import { useTheme } from '../hooks/useTheme'
 import { setThemeMode } from '../store/themeSlice'
 import type { ThemeMode } from '../store/themeSlice'
+import RNFetchBlob from 'rn-fetch-blob'
+import XLSX from 'xlsx'
+import Share from 'react-native-share'
+import { Expense } from '../types/expense'
 
 type Props = NativeStackNavigationProp<RootStackParamList>;
 
@@ -24,8 +28,8 @@ export default function ProfileScreen() {
   const { mode } = useSelector((state: RootState) => state.theme);
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [exportModalVisible, setExportModalVisible] = useState(false);
   const [profileImage, setProfileImage] = useState(IMAGES.PROFILE);
-
 
   const totalAmount = useMemo(() => {
     const total = Object.values(expenses).reduce((sum, tripExpenses) => {
@@ -133,6 +137,150 @@ export default function ProfileScreen() {
     dispatch(setThemeMode(nextTheme));
   };
 
+  const handleExportData = async (format: 'xlsx' | 'txt', tripId?: string) => {
+    try {
+      // Get expenses data to export
+      let dataToExport: Expense[] = [];
+      if (tripId) {
+        // Export specific trip expenses
+        dataToExport = expenses[tripId] || [];
+      } else {
+        // Export all expenses
+        dataToExport = Object.values(expenses).flat();
+      }
+
+      if (dataToExport.length === 0) {
+        Alert.alert('No Data', 'There are no expenses to export');
+        return;
+      }
+
+      // Create filename with timestamp to avoid overwriting
+      const timestamp = new Date().getTime();
+      const tripName = tripId ? trips.find(t => t.id === tripId)?.place.replace(/\s+/g, '_').toLowerCase() : 'all';
+      const fileName = `budgetfy_expenses_${tripName}_${timestamp}`;
+      
+      // Determine where to save the file
+      let dirPath = '';
+      let hasPermission = false;
+      
+      if (Platform.OS === 'android') {
+        try {
+          // For Android 11+ (API level 30+), we need to use the MediaStore API
+          // For simplicity, we'll try the permission and fall back to app directory if denied
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            {
+              title: "Storage Permission",
+              message: "Budgetfy needs access to your storage to save exported files",
+              buttonPositive: "OK",
+              buttonNegative: "Cancel",
+            }
+          );
+          
+          hasPermission = granted === PermissionsAndroid.RESULTS.GRANTED;
+        } catch (error) {
+          console.log('Permission error:', error);
+          hasPermission = false;
+        }
+        
+        // Use Downloads directory if permission granted, otherwise use app directory
+        dirPath = hasPermission 
+          ? RNFetchBlob.fs.dirs.DownloadDir 
+          : RNFetchBlob.fs.dirs.DocumentDir;
+      } else {
+        // For iOS, always use DocumentDir
+        dirPath = RNFetchBlob.fs.dirs.DocumentDir;
+      }
+        
+      let filePath = '';
+      let mimeType = '';
+
+      if (format === 'xlsx') {
+        // Format data for Excel
+        const worksheetData = dataToExport.map(expense => {
+          const trip = trips.find(t => t.id === expense.tripId);
+          return {
+            'Title': expense.title,
+            'Amount': expense.amount,
+            'Currency': `${targetCurrency.symbol} (${targetCurrency.id})`,
+            'Converted Amount': `${targetCurrency.symbol}${(expense.amount * targetCurrency.rate).toFixed(2)}`,
+            'Category': expense.category,
+            'Description': expense.description || '',
+            'Trip': trip ? `${trip.place}, ${trip.country}` : 'Unknown',
+            'Date': expense.date ? new Date(expense.date).toLocaleDateString() : 'N/A'
+          };
+        });
+
+        // Create workbook
+        const ws = XLSX.utils.json_to_sheet(worksheetData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Expenses');
+        
+        // Convert to base64 string
+        const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' });
+        
+        filePath = `${dirPath}/${fileName}.xlsx`;
+        await RNFetchBlob.fs.writeFile(filePath, wbout, 'base64');
+        mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      } else {
+        // Format data for text file
+        let fileContent = 'BUDGETFY EXPENSES REPORT\n';
+        fileContent += `Generated: ${new Date().toLocaleString()}\n\n`;
+        
+        dataToExport.forEach((expense, index) => {
+          const trip = trips.find(t => t.id === expense.tripId);
+          fileContent += `EXPENSE #${index + 1}\n`;
+          fileContent += `Title: ${expense.title}\n`;
+          fileContent += `Amount: ${expense.amount}\n`;
+          fileContent += `Converted: ${targetCurrency.symbol}${(expense.amount * targetCurrency.rate).toFixed(2)}\n`;
+          fileContent += `Category: ${expense.category}\n`;
+          fileContent += `Description: ${expense.description || 'N/A'}\n`;
+          fileContent += `Trip: ${trip ? `${trip.place}, ${trip.country}` : 'Unknown'}\n`;
+          fileContent += `Date: ${expense.date ? new Date(expense.date).toLocaleDateString() : 'N/A'}\n`;
+          fileContent += `----------------------------------------\n\n`;
+        });
+        
+        filePath = `${dirPath}/${fileName}.txt`;
+        await RNFetchBlob.fs.writeFile(filePath, fileContent, 'utf8');
+        mimeType = 'text/plain';
+      }
+
+      console.log('File saved at:', filePath);
+
+      // Share the file
+      try {
+        const shareOptions = {
+          title: 'Share Expenses',
+          message: 'Here are my exported expenses from Budgetfy',
+          url: `file://${filePath}`,
+          type: mimeType,
+        };
+        
+        await Share.open(shareOptions);
+        
+        if (Platform.OS === 'android' && !hasPermission) {
+          // If we didn't have permission, let the user know where the file was saved
+          Alert.alert(
+            'File Saved',
+            'The file was saved to your app\'s private storage. Use the share option to save it elsewhere.',
+            [{ text: 'OK' }]
+          );
+        } else {
+          Alert.alert('Success', 'File exported successfully');
+        }
+      } catch (shareError) {
+        console.error('Share error:', shareError);
+        Alert.alert('Success', `File exported successfully to ${filePath}`);
+      }
+      
+      setExportModalVisible(false);
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      Alert.alert('Export Failed', 'There was an error exporting your data. Please try again.');
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
@@ -154,6 +302,7 @@ export default function ProfileScreen() {
         <Text style={styles.userEmail}>abc@gmail.com</Text>
       </View>
 
+      {/* Image Picker Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -178,6 +327,69 @@ export default function ProfileScreen() {
             <TouchableOpacity 
               style={[styles.modalButton, styles.cancelButton]}
               onPress={() => setModalVisible(false)}
+            >
+              <Text style={[styles.modalButtonText, styles.cancelText]}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Export Data Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={exportModalVisible}
+        onRequestClose={() => setExportModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: theme.colors.card }]}>
+            <Text style={[styles.modalTitle, { color: theme.colors.text }]}>Export Expenses</Text>
+            
+            {/* Format Selection */}
+            <View style={styles.exportSection}>
+              <Text style={[styles.exportSectionTitle, { color: theme.colors.text }]}>Select Format:</Text>
+              <View style={styles.exportButtonsRow}>
+                <TouchableOpacity 
+                  style={[styles.exportFormatButton, { backgroundColor: theme.colors.primary }]}
+                  onPress={() => handleExportData('xlsx')}
+                >
+                  <Text style={styles.exportButtonText}>Excel (.xlsx)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.exportFormatButton, { backgroundColor: theme.colors.primary }]}
+                  onPress={() => handleExportData('txt')}
+                >
+                  <Text style={styles.exportButtonText}>Text (.txt)</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            {/* Trip Selection */}
+            <View style={styles.exportSection}>
+              <Text style={[styles.exportSectionTitle, { color: theme.colors.text }]}>Select Trip:</Text>
+              <TouchableOpacity 
+                style={[styles.exportTripButton, { backgroundColor: theme.colors.primary }]}
+                onPress={() => handleExportData('xlsx')}
+              >
+                <Text style={styles.exportButtonText}>All Trips</Text>
+              </TouchableOpacity>
+              
+              <View style={styles.tripsList}>
+                {trips.map(trip => (
+                  <TouchableOpacity 
+                    key={trip.id}
+                    style={[styles.exportTripButton, { backgroundColor: theme.colors.primary }]}
+                    onPress={() => handleExportData('xlsx', trip.id)}
+                  >
+                    <Text style={styles.exportButtonText}>{trip.place}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+            
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={() => setExportModalVisible(false)}
             >
               <Text style={[styles.modalButtonText, styles.cancelText]}>Cancel</Text>
             </TouchableOpacity>
@@ -225,9 +437,11 @@ export default function ProfileScreen() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={[styles.settingText, { color: theme.colors.text }]}>Language</Text>
-          <Text style={[styles.settingValue, { color: theme.colors.grey }]}>English</Text>
+        <TouchableOpacity 
+          style={[styles.settingItem, { borderBottomColor: theme.colors.border }]}
+          onPress={() => setExportModalVisible(true)}
+        >
+          <Text style={[styles.settingText, { color: theme.colors.text }]}>Export Data</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -418,4 +632,37 @@ const styles = StyleSheet.create({
   settingIcon: {
     marginRight: 8,
   },
-})
+  exportSection: {
+    marginBottom: 20,
+  },
+  exportSectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 10,
+  },
+  exportButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  exportFormatButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 10,
+    marginHorizontal: 5,
+    alignItems: 'center',
+  },
+  exportTripButton: {
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 8,
+    alignItems: 'center',
+  },
+  exportButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  tripsList: {
+    maxHeight: 200,
+  }
+});
