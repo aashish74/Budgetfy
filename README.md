@@ -11,6 +11,7 @@ A React Native mobile application for tracking travel expenses and managing trip
 - 📱 Bottom tab navigation
 - 🎨 Modern UI with custom components
 - 🔄 Real-time data sync with Firebase
+- Light and Dark Themes
 
 ## Tech Stack
 
