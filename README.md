@@ -2,6 +2,8 @@
 
 A React Native mobile application for tracking travel expenses and managing trip budgets. Built with React Native, Redux Toolkit, and TypeScript.
 
+https://teams.microsoft.com/l/meetup-join/19%3ameeting_OTgxYWNiYzQtNjMwNS00YmRjLTkxMGMtNTM0NWRjNTBiNWZh%40thread.v2/0?context=%7b%22Tid%22%3a%22d420b80d-bc1a-429d-b6c6-587896c20153%22%2c%22Oid%22%3a%224cbe315a-ec98-4265-8fd4-12ec7c4f84c8%22%7d
+
 ## Features
 
 - 📱 Track expenses by trip
