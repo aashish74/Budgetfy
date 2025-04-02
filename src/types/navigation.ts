@@ -11,6 +11,7 @@ export type RootStackParamList = {
   };
   Currency: undefined;
   Statistics: undefined;
+  Help: undefined;
 };
 
 
