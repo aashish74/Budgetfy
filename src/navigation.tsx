@@ -23,6 +23,7 @@ import CurrencyScreen from './screens/CurrencyScreen';
 import { useTheme } from './hooks/useTheme';
 import { darkTheme } from './theme/theme';
 import StatisticsScreen from './screens/StatisticsScreen';
+import HelpScreen from './screens/HelpScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -148,6 +149,7 @@ const Navigation = () => {
             <Stack.Screen name="AddExpenses" component={AddExpensesScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Currency" component={CurrencyScreen} options={{headerShown:false}}/>
             <Stack.Screen name='Statistics' component={StatisticsScreen} options={{headerShown:false}}/>
+            <Stack.Screen name='Help' component={HelpScreen} options={{headerShown:false}}/>
           </>
         )}
       </Stack.Navigator>

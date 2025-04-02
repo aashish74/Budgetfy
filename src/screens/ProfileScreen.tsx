@@ -450,6 +450,9 @@ export default function ProfileScreen() {
         >
           <Text style={[styles.settingText, { color: theme.colors.text }]}>Statistics</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('Help')}>
+          <Text style={[styles.settingText, { color: theme.colors.text }]}>Help</Text>
+        </TouchableOpacity>
 
       </View>
 
