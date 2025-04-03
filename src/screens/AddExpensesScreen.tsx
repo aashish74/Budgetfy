@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store/store';
-import { createExpense, addExpense } from '../store/expenseSlice';
+import { addExpense } from '../store/expenseSlice';
 import BackButton from '../components/backButton';
 import IMAGES from '../assets/images';
 import { categories } from '../components/categories';
