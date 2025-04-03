@@ -1,4 +1,4 @@
-import { FlatList, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native'
+import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native'
 import React, { useEffect } from 'react'
 import IMAGES from '../assets/images';
 import randomImage from '../assets/randomImage';
@@ -16,9 +16,7 @@ import { LinearGradient } from 'react-native-linear-gradient';
 
 type Props = NativeStackNavigationProp<RootStackParamList>;
 
-const { width, height } = Dimensions.get('window');
-const scale = Math.min(width, height) / 375;
-const numColumns = width > 500 ? 3 : 2; // More columns for larger screens
+const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const navigation = useNavigation<Props>();

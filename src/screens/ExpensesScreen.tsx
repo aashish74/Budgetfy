@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, StatusBar, Alert, Dimensions, SafeAreaView, KeyboardAvoidingView, ScrollView, Platform, useColorScheme } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, StatusBar, Alert, Dimensions, useColorScheme } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,9 +9,9 @@ import { addTrip } from '../store/tripSlice';
 import IMAGES from '../assets/images';
 import { useTheme } from '../hooks/useTheme';
 import { ThemedView } from '../components/ThemedView';
+import { SafeAreaView } from 'react-native-safe-area-context';
+const { width } = Dimensions.get('window');
 
-const { width, height } = Dimensions.get('window');
-const scale = Math.min(width, height) / 375;
 
 export default function ExpensesScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();

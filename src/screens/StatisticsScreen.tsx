@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { PieChart } from 'react-native-gifted-charts';
@@ -64,9 +65,10 @@ export default function StatisticsScreen() {
     };
 
     return (
-        <ThemedView style={styles.container}>
-            <View style={styles.header}>
-                <BackButton />
+        <SafeAreaView style={{ flex: 1 }}>
+            <ThemedView style={styles.container}>
+                <View style={styles.header}>
+                    <BackButton />
                 <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Statistics</Text>
             </View>
 
@@ -159,6 +161,7 @@ export default function StatisticsScreen() {
                 </View>
             </ScrollView>
         </ThemedView>
+        </SafeAreaView>
     );
 }
 
