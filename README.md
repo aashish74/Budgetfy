@@ -13,6 +13,7 @@ https://teams.microsoft.com/l/meetup-join/19%3ameeting_N2E3Y2JhZTktZGM1OS00NmQzL
 - 📱 Bottom tab navigation
 - 🎨 Modern UI with custom components
 - 🔄 Real-time data sync with Firebase
+- Light and Dark Themes
 
 ## Tech Stack
 
