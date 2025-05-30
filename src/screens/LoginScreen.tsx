@@ -1,4 +1,5 @@
-import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native'
+import { Alert, Image, Text, TextInput, TouchableOpacity, View, ActivityIndicator, } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { setUser, setError, setLoading } from '../store/userSlice'
@@ -20,11 +21,6 @@ const LoginScreen = () => {
     const [loading, setLocalLoading] = useState(false)
     const navigation = useNavigation<Props>()
     const dispatch = useDispatch<AppDispatch>()
-
-    const isValidEmail = (email: string) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        return emailRegex.test(email)
-    }
 
     const handleLogin = async () => {
         if (loading) return;
@@ -58,9 +54,10 @@ const LoginScreen = () => {
     };
 
     return (
-        <View style={{ paddingTop: 25, backgroundColor: '#fff', height:'100%'}}>
-            <View style={{ position: 'absolute', zIndex: 1, paddingTop: 24, paddingLeft: 8 }}>
-                <BackButton />
+        <SafeAreaView style={{ flex: 1 }}>
+            <View style={{ paddingTop: 25, backgroundColor: '#fff', height:'100%'}}>
+                <View style={{ position: 'absolute', zIndex: 1, paddingTop: 24, paddingLeft: 8 }}>
+                    <BackButton />
             </View>
             <View style={{ paddingTop: 4, marginBottom: 20 }}>
                 <Text style={{ textAlign: 'center', fontWeight: '600', fontSize: 24 }}>Sign In</Text>
@@ -103,10 +100,9 @@ const LoginScreen = () => {
                     )}
                 </TouchableOpacity>
             </View>
-        </View>
+            </View>
+        </SafeAreaView>
     )
 }
-
-const styles = StyleSheet.create({})
 
 export default LoginScreen
