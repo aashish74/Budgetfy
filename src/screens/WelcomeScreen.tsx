@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import IMAGES from '../assets/images'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
