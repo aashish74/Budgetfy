@@ -1,4 +1,4 @@
-const API_KEY = 'REMOVED';
+import {CURRENCY_API_KEY as API_KEY} from '@env';
 const BASE_URL = 'https://v6.exchangerate-api.com/v6';
 
 export interface ExchangeRateResponse {

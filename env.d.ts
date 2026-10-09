@@ -5,4 +5,5 @@ declare module '@env' {
     export const PROJECT_ID: string;
     export const STORAGE_BUCKET: string;
     export const MESSAGING_SENDER_ID: string;
+    export const CURRENCY_API_KEY: string;
   }
